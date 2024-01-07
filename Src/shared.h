@@ -12,6 +12,8 @@ MCL_IMPORT(int, msvcrt, _wcsicmp, (const short*, const short*));
 MCL_IMPORT(int, msvcrt, wcslen, (const short*));
 MCL_IMPORT(BSTR, OleAut32, SysAllocString, (short*));
 
+#define AS_IDISPATCH(p) ((IDispatch*)(void*)p)
+
 // Uncomment to generate debug build
 #define AHK_DEBUG_BUILD
 

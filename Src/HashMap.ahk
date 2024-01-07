@@ -27,5 +27,5 @@ class HashMap {
         this.lib.DebugStrPtr := CallbackCreate((a, b) => Print(StrGet(a) " " Format("{:08x}", b)), "Cdecl")
     }
 
-    static Call() => ComObjFromPtr(this.lib.make())
+    static Call() => ComObjFromPtr(this.lib.NewComHashMap())
 }

@@ -120,7 +120,6 @@ enum
 #define stbds_hmput_key_wrapper           stbds_hmput_key
 #define stbds_hmdel_key_wrapper           stbds_hmdel_key
 
-#endif // INCLUDE_STB_DS_H
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -629,3 +628,5 @@ void * stbds_hmdel_key(void *a, size_t elemsize, void *key, size_t keysize, size
   /* NOTREACHED */
   return 0;
 }
+
+#endif // INCLUDE_STB_DS_H

@@ -122,6 +122,18 @@ class TestSuite {
         )
     }
 
+    SetByItem() {
+        hm := HashMap()
+        hm['alpha'] := 'beta' ; Please don't crash
+    }
+
+    GetByItem() {
+        hm := HashMap()
+        hm.Set('alpha', 'beta')
+        result := hm['alpha']
+        Yunit.Assert(result == 'beta', 'Did not retrieve same str!')
+    }
+
     End() {
     }
 }

@@ -130,7 +130,10 @@ HRESULT __stdcall chm_Invoke(
     DebugStr(L"Invoke");
 
     // Set method
-    if (dispIdMember == CHM_DISPID_SET && wFlags & DISPATCH_METHOD) {
+    if (
+        dispIdMember == CHM_DISPID_SET && (wFlags & DISPATCH_METHOD) ||
+        dispIdMember == DISPID_VALUE && (wFlags & DISPID_PROPERTYPUT)
+    ) {
         DebugStr(L"Invoking Set");
 
         // Require exactly 2 params
@@ -156,10 +159,13 @@ HRESULT __stdcall chm_Invoke(
     }
 
     // Get method
-    if (dispIdMember == CHM_DISPID_GET && wFlags & DISPATCH_METHOD) {
+    if (
+        dispIdMember == CHM_DISPID_GET && (wFlags & DISPATCH_METHOD) ||
+        dispIdMember == DISPID_VALUE && (wFlags & DISPATCH_PROPERTYGET)
+    ) {
         DebugStr(L"Invoking Get");
 
-        // Require exactly 2 params
+        // Require exactly 1 param
         if (pDispParams->cArgs != 1) {
             return DISP_E_BADPARAMCOUNT;
         }

@@ -1,0 +1,7 @@
+[submodule "Src/Lib/MCL.ahk"]
+	path = Src/Lib/MCL.ahk
+	url = https://github.com/G33kDude/MCL.ahk.git
+[submodule "Tests/Lib/Yunit"]
+	path = Tests/Lib/Yunit
+	url = https://github.com/Uberi/Yunit.git
+	branch = v2

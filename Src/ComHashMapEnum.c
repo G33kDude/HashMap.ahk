@@ -110,17 +110,6 @@ HRESULT __stdcall chme_Invoke(
         DebugStrPtr(L"CHME VT TARGET", VT_VARIANT | VT_BYREF);
         DebugStrPtr(L"CHME hmlen", stbds_hmlen(this->object->items));
 
-        if (pDispParams->cArgs != 2) {
-            return DISP_E_BADPARAMCOUNT;
-        }
-
-        if (
-            pDispParams->rgvarg[1].vt != (VT_VARIANT | VT_BYREF) ||
-            pDispParams->rgvarg[0].vt != (VT_VARIANT | VT_BYREF)
-        ) {
-            return DISP_E_BADVARTYPE;
-        }
-
         if (this->index >= stbds_hmlen(this->object->items)) {
             // return 0
             pVarResult->vt = VT_I4;
@@ -128,16 +117,36 @@ HRESULT __stdcall chme_Invoke(
             return S_OK;
         }
 
-        // Retrieve the HashMap item
-        HashItem item = this->object->items[this->index];
+        if (pDispParams->cArgs == 1) {
+            if (pDispParams->rgvarg[0].vt != (VT_VARIANT | VT_BYREF)) {
+                return DISP_E_BADVARTYPE;
+            }
 
-        VARIANT vtKey = UnpackVariant(item.key);
-        pDispParams->rgvarg[1].pvarVal->vt = vtKey.vt;
-        pDispParams->rgvarg[1].pvarVal->llVal = vtKey.llVal;
+            HashItem item = this->object->items[this->index];
 
-        VARIANT vtVal = UnpackVariant(item.val);
-        pDispParams->rgvarg[0].pvarVal->vt = vtVal.vt;
-        pDispParams->rgvarg[0].pvarVal->llVal = vtVal.llVal;
+            VARIANT vtKey = UnpackVariant(item.key);
+            pDispParams->rgvarg[0].pvarVal->vt = vtKey.vt;
+            pDispParams->rgvarg[0].pvarVal->llVal = vtKey.llVal;
+        } else if (pDispParams->cArgs == 2) {
+            if (
+                pDispParams->rgvarg[1].vt != (VT_VARIANT | VT_BYREF) ||
+                pDispParams->rgvarg[0].vt != (VT_VARIANT | VT_BYREF)
+            ) {
+                return DISP_E_BADVARTYPE;
+            }
+
+            HashItem item = this->object->items[this->index];
+
+            VARIANT vtKey = UnpackVariant(item.key);
+            pDispParams->rgvarg[1].pvarVal->vt = vtKey.vt;
+            pDispParams->rgvarg[1].pvarVal->llVal = vtKey.llVal;
+
+            VARIANT vtVal = UnpackVariant(item.val);
+            pDispParams->rgvarg[0].pvarVal->vt = vtVal.vt;
+            pDispParams->rgvarg[0].pvarVal->llVal = vtVal.llVal;
+        } else {
+            return DISP_E_BADPARAMCOUNT;
+        }
 
         this->index++;
 

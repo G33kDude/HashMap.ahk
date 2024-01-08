@@ -115,6 +115,8 @@ HRESULT __stdcall chm_GetIDsOfNames(
             rgDispId[i] = CHM_DISPID_CLEAR;
         } else if (0 == _wcsicmp(rgszNames[i], L"Has")) {
             rgDispId[i] = CHM_DISPID_HAS;
+        } else if (0 == _wcsicmp(rgszNames[i], L"__Item")) {
+            rgDispId[i] = DISPID_VALUE;
         } else {
             retval = DISP_E_UNKNOWNNAME;
             rgDispId[i] = DISPID_UNKNOWN;

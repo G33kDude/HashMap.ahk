@@ -243,6 +243,14 @@ class TestSuite {
         Yunit.Assert(!hm.Has(2), "Had key it should not")
     }
 
+    AccessByItemProp() {
+        hm := HashMap()
+        hm.__Item[1] := 2
+        hm.__Item[3] := 4
+        Yunit.Assert(hm.__Item[1] == 2)
+        Yunit.Assert(hm.__Item[3] == 4)
+    }
+
     End() {
     }
 }

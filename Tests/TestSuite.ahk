@@ -235,6 +235,14 @@ class TestSuite {
         Yunit.Assert(countStart == countEnd, "Get messed up the ref count")
     }
 
+    Has() {
+        hm := HashMap()
+        hm.Set(1, 2)
+        hm.Set(3, 4)
+        Yunit.Assert(hm.Has(1), "Did not have key it should")
+        Yunit.Assert(!hm.Has(2), "Had key it should not")
+    }
+
     End() {
     }
 }

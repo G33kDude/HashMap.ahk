@@ -8,6 +8,7 @@
 #define CHM_DISPID_COUNT 3
 #define CHM_DISPID_DELETE 4
 #define CHM_DISPID_CLEAR 5
+#define CHM_DISPID_HAS 6
 
 /**
  * Returns the IDispatch interface of the object when requested
@@ -112,6 +113,8 @@ HRESULT __stdcall chm_GetIDsOfNames(
             rgDispId[i] = CHM_DISPID_DELETE;
         } else if (0 == _wcsicmp(rgszNames[i], L"Clear")) {
             rgDispId[i] = CHM_DISPID_CLEAR;
+        } else if (0 == _wcsicmp(rgszNames[i], L"Has")) {
+            rgDispId[i] = CHM_DISPID_HAS;
         } else {
             retval = DISP_E_UNKNOWNNAME;
             rgDispId[i] = DISPID_UNKNOWN;
@@ -272,6 +275,22 @@ HRESULT __stdcall chm_Invoke(
         // initialization whenever keys are set on a null hashmap.
         stbds_hmfree(this->items);
 
+        return S_OK;
+    }
+
+    // Has method
+    if ( dispIdMember == CHM_DISPID_HAS && (wFlags & DISPATCH_METHOD)) {
+        DebugStr(L"Invoking Has");
+
+        // Require exactly 1 param
+        if (pDispParams->cArgs != 1) {
+            return DISP_E_BADPARAMCOUNT;
+        }
+
+        int index = stbds_hmgeti(this->items, pDispParams->rgvarg[0]);
+
+        pVarResult->vt = VT_I4;
+        pVarResult->intVal = index >= 0;
         return S_OK;
     }
 

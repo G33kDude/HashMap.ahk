@@ -243,6 +243,21 @@ class TestSuite {
         Yunit.Assert(!hm.Has(2), "Had key it should not")
     }
 
+    GetWithPresetDefault() {
+        hm := HashMap()
+        hm.Default := 2
+        result := hm.Get(1)
+        Yunit.Assert(result == 2, "Get did not get the right default")
+    }
+
+    Clone() {
+        hm := HashMap()
+        hm.Set(1, 2)
+        clone := hm.Clone()
+        hm.Set(1, 3)
+        Yunit.Assert(clone[1] == 2, "Clone was changed by source")
+    }
+
     AccessByItemProp() {
         hm := HashMap()
         hm.__Item[1] := 2

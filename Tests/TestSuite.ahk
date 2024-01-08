@@ -198,6 +198,32 @@ class TestSuite {
         }
     }
 
+    Clear() {
+        hm := HashMap()
+
+        o := {}
+        countStart := ObjRelease(ObjPtrAddRef(o))
+
+        hm.Set(o, o)
+        hm.Set(1, 2)
+        hm.Set('a', 'b')
+        countAfterSet := ObjRelease(ObjPtrAddRef(o))
+
+        Yunit.assert(countAfterSet > countStart, "Reference count did not increase!")
+        Yunit.assert(hm.Count == 3, "There are not 3 items now!")
+
+        hm.Clear()
+        countEnd := ObjRelease(ObjPtrAddRef(o))
+
+        Yunit.assert(countStart == countEnd, "Reference count did not revert!")
+        Yunit.assert(hm.Count == 0, "There are not 0 items now!")
+
+        try {
+            hm.Get(o)
+            Yunit.assert(false, "Item not removed!")
+        }
+    }
+
     GetWithDefault() {
         hm := HashMap()
         o := []

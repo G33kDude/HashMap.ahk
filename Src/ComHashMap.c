@@ -7,6 +7,7 @@
 #define CHM_DISPID_SET 2
 #define CHM_DISPID_COUNT 3
 #define CHM_DISPID_DELETE 4
+#define CHM_DISPID_CLEAR 5
 
 /**
  * Returns the IDispatch interface of the object when requested
@@ -109,6 +110,8 @@ HRESULT __stdcall chm_GetIDsOfNames(
             rgDispId[i] = CHM_DISPID_COUNT;
         } else if (0 == _wcsicmp(rgszNames[i], L"Delete")) {
             rgDispId[i] = CHM_DISPID_DELETE;
+        } else if (0 == _wcsicmp(rgszNames[i], L"Clear")) {
+            rgDispId[i] = CHM_DISPID_CLEAR;
         } else {
             retval = DISP_E_UNKNOWNNAME;
             rgDispId[i] = DISPID_UNKNOWN;
@@ -248,6 +251,26 @@ HRESULT __stdcall chm_Invoke(
         pVarResult->llVal = item.val.llVal;
 
         DebugStr(L"Deletion should have happened now");
+
+        return S_OK;
+    }
+
+    // Clear method
+    if (dispIdMember == CHM_DISPID_CLEAR && wFlags & DISPATCH_METHOD) {
+        DebugStr(L"Invoking Clear");
+
+        // Free the variants
+        int len = this->items == NULL ? 0 : stbds_hmlen(this->items);
+        for (int i = 0; i < len; i++) {
+            VariantClear(&this->items[i].key);
+            VariantClear(&this->items[i].val);
+        }
+
+        // Free the hashmap. There's not really a "clear" function, freeing the
+        // map sets its pointer to NULL, and a NULL pointer is treated as an
+        // empty hashmap by the library. The library performs automatic
+        // initialization whenever keys are set on a null hashmap.
+        stbds_hmfree(this->items);
 
         return S_OK;
     }

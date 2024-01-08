@@ -138,22 +138,20 @@ HRESULT __stdcall chm_Invoke(
     ) {
         DebugStr(L"Invoking Set");
 
-        // Require exactly 2 params
-        if (pDispParams->cArgs != 2) {
+        // Require an even count of params
+        if (pDispParams->cArgs & 1) {
             return DISP_E_BADPARAMCOUNT;
         }
 
-        VARIANT key = { .vt = VT_EMPTY };
-        VariantCopy(&key, &pDispParams->rgvarg[1]);
-        VARIANT val = { .vt = VT_EMPTY };
-        VariantCopy(&val, &pDispParams->rgvarg[0]);
-
-        HashItem item = {
-            .key = key,
-            .val = val
-        };
-
-        stbds_hmputs(this->items, item);
+        for (int i = 0; i < pDispParams->cArgs; i += 2) {
+            HashItem item = {
+                .key = { .vt = VT_EMPTY },
+                .val = { .vt = VT_EMPTY },
+            };
+            VariantCopy(&item.key, &pDispParams->rgvarg[i+1]);
+            VariantCopy(&item.val, &pDispParams->rgvarg[i+0]);
+            stbds_hmputs(this->items, item);
+        }
 
         pVarResult->vt = VT_DISPATCH;
         pVarResult->pdispVal = AS_IDISPATCH(this);

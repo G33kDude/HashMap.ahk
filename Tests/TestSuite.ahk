@@ -163,6 +163,12 @@ class TestSuite {
         Yunit.Assert(countAfterClear == countStart, "Ref count after clear wrong!")
     }
 
+    SetMultiple() {
+        hm := HashMap()
+        hm.Set(1, 2, 3, 4)
+        Yunit.Assert(hm.Count == 2, "Set did not set multiple items")
+    }
+
     End() {
     }
 }

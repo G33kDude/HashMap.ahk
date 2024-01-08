@@ -30,7 +30,8 @@ HRESULT __stdcall chm_QueryInterface(ComHashMap *this, REFIID riid, void** ppvOb
  * https://learn.microsoft.com/en-us/windows/win32/api/unknwn/nf-unknwn-iunknown-addref
  */
 ULONG __stdcall chm_AddRef(ComHashMap *this) {
-    DebugStrPtr(L"AddRef", ++this->refcount);
+    ++this->refcount;
+    DebugStrPtr(L"AddRef", this->refcount);
     return this->refcount;
 }
 
@@ -40,7 +41,8 @@ ULONG __stdcall chm_AddRef(ComHashMap *this) {
  * https://learn.microsoft.com/en-us/windows/win32/api/unknwn/nf-unknwn-iunknown-release
  */
 ULONG __stdcall chm_Release(ComHashMap* this) {
-    DebugStrPtr(L"Release", --this->refcount);
+    --this->refcount;
+    DebugStrPtr(L"Release", this->refcount);
     if (this->refcount == 0) {
         // Free the variants
         int len = this->items == NULL ? 0 : stbds_hmlen(this->items);

@@ -124,9 +124,7 @@ HRESULT __stdcall chme_Invoke(
 
             HashItem item = this->object->items[this->index];
 
-            VARIANT vtKey = UnpackVariant(item.key);
-            pDispParams->rgvarg[0].pvarVal->vt = vtKey.vt;
-            pDispParams->rgvarg[0].pvarVal->llVal = vtKey.llVal;
+            VariantCopy(pDispParams->rgvarg[0].pvarVal, &item.key);
         } else if (pDispParams->cArgs == 2) {
             if (
                 pDispParams->rgvarg[1].vt != (VT_VARIANT | VT_BYREF) ||
@@ -137,13 +135,8 @@ HRESULT __stdcall chme_Invoke(
 
             HashItem item = this->object->items[this->index];
 
-            VARIANT vtKey = UnpackVariant(item.key);
-            pDispParams->rgvarg[1].pvarVal->vt = vtKey.vt;
-            pDispParams->rgvarg[1].pvarVal->llVal = vtKey.llVal;
-
-            VARIANT vtVal = UnpackVariant(item.val);
-            pDispParams->rgvarg[0].pvarVal->vt = vtVal.vt;
-            pDispParams->rgvarg[0].pvarVal->llVal = vtVal.llVal;
+            VariantCopy(pDispParams->rgvarg[1].pvarVal, &item.key);
+            VariantCopy(pDispParams->rgvarg[0].pvarVal, &item.val);
         } else {
             return DISP_E_BADPARAMCOUNT;
         }

@@ -4,7 +4,7 @@
 
 #include "shared.h"
 
-typedef struct HashItem { PackedVariant* key; PackedVariant* val; } HashItem;
+typedef struct HashItem { VARIANT key; VARIANT val; } HashItem;
 
 typedef struct ComHashMap ComHashMap;
 

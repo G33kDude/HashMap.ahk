@@ -42,11 +42,11 @@ ULONG __stdcall chm_AddRef(ComHashMap *this) {
 ULONG __stdcall chm_Release(ComHashMap* this) {
     DebugStrPtr(L"Release", --this->refcount);
     if (this->refcount == 0) {
-        // Free the PackedVariants
+        // Free the variants
         int len = this->items == NULL ? 0 : stbds_hmlen(this->items);
         for (int i = 0; i < len; i++) {
-            free(this->items[i].key);
-            free(this->items[i].val);
+            VariantClear(&this->items[i].key);
+            VariantClear(&this->items[i].val);
         }
         // Free the hashmap
         stbds_hmfree(this->items);
@@ -141,8 +141,10 @@ HRESULT __stdcall chm_Invoke(
             return DISP_E_BADPARAMCOUNT;
         }
 
-        PackedVariant* key = PackVariant(pDispParams->rgvarg[1]);
-        PackedVariant* val = PackVariant(pDispParams->rgvarg[0]);
+        VARIANT key = { .vt = VT_EMPTY };
+        VariantCopy(&key, &pDispParams->rgvarg[1]);
+        VARIANT val = { .vt = VT_EMPTY };
+        VariantCopy(&val, &pDispParams->rgvarg[0]);
 
         HashItem item = {
             .key = key,
@@ -170,9 +172,7 @@ HRESULT __stdcall chm_Invoke(
             return DISP_E_BADPARAMCOUNT;
         }
 
-        PackedVariant* key = PackVariant(pDispParams->rgvarg[0]);
-
-        int index = stbds_hmgeti(this->items, key);
+        int index = stbds_hmgeti(this->items, pDispParams->rgvarg[0]);
 
         if (index == -1) {
             pExcepInfo->wCode = 1001;
@@ -181,9 +181,8 @@ HRESULT __stdcall chm_Invoke(
             return DISP_E_EXCEPTION;
         }
 
-        VARIANT val = UnpackVariant(this->items[index].val);
-        pVarResult->vt = val.vt;
-        pVarResult->llVal = val.llVal;
+        VARIANT val = { .vt = VT_EMPTY };
+        VariantCopy(pVarResult, &this->items[index].val);
 
         return S_OK;
     }

@@ -318,38 +318,49 @@ size_t fnv1a(void* data, size_t len, size_t seed) {
 
 size_t stbds_hash_bytes(void* p, size_t len, size_t seed)
 {
-  PackedVariant* vt = *(PackedVariant**)p;
-  int64_t hash = fnv1a(&vt->type, sizeof(vt->type) + vt->len, seed);
+  VARIANT vt = *(VARIANT*)p;
+  UINT cbBuf = 0;
+  VARTYPE* buf;
+  if (vt.vt == VT_BSTR) {
+    // Hash type + string length (including null terminator)
+    cbBuf = SysStringLen(vt.bstrVal) + 2;
+    buf = (VARTYPE*)malloc(sizeof(VARTYPE) + cbBuf);
+    buf[0] = vt.vt;
+    memcpy(&buf[1], vt.bstrVal, cbBuf);
+  } else if (vt.vt == VT_I4 || vt.vt == VT_R4) {
+    // Hash type + 4 bytes
+    cbBuf = sizeof(uint32_t);
+    buf =(VARTYPE*) malloc(sizeof(VARTYPE) + cbBuf);
+    buf[0] = vt.vt;
+    memcpy(&buf[1], &vt.uintVal, cbBuf);
+  } else if (vt.vt == VT_DISPATCH) {
+    // Hash type + pointer
+    cbBuf = sizeof(PVOID);
+    buf =(VARTYPE*) malloc(sizeof(VARIANT*) + cbBuf);
+    buf[0] = vt.vt;
+    memcpy(&buf[1], &vt.pvarVal, cbBuf);
+  } else { // if (vt.vt == VT_I8 || vt.vt == VT_R8) {
+    // Hash type + 8 bytes
+    cbBuf = sizeof(uint64_t);
+    buf =(VARTYPE*) malloc(sizeof(VARTYPE) + cbBuf);
+    buf[0] = vt.vt;
+    memcpy(&buf[1], &vt.ullVal, cbBuf);
+  }
+  size_t hash = fnv1a(buf, 2 + cbBuf, seed);
   DebugStrPtr(L"hash", hash);
   return hash;
 }
 
 static int stbds_is_key_equal(void* a, size_t elemsize, void* key, size_t keysize, int mode, size_t i)
 {
-  PackedVariant* pvA = *(PackedVariant**)((char*)a + elemsize * i);
-  PackedVariant* pvKey = *(PackedVariant**)key;
+  VARIANT vtA = *(VARIANT*)((char*)a + elemsize * i);
+  VARIANT vtKey = *(VARIANT*)key;
 
-  DebugStrPtr(L"Size", elemsize);
-
-  DebugStrPtr(L"Comparing against index", i);
-
-  // guard same width
-  if (pvA->len != pvKey->len) {
-    DebugStr(L"Not equal different lengths!");
-    DebugPtr(pvA);
-    DebugPtr(pvKey);
-    return 0;
+  if (vtA.vt == VT_DISPATCH && vtKey.vt == VT_DISPATCH) {
+    return vtA.pdispVal == vtKey.pdispVal;
   }
 
-  int difference = memcmp(&(pvA->type), &(pvKey->type), sizeof(pvA->type) + pvA->len);
-  if (difference) {
-    DebugStr(L"Not equal different lengths!");
-    DebugPtr(pvA);
-    DebugPtr(pvKey);
-  } else {
-    DebugStr(L"Equal!");
-  }
-  return !difference;
+  return 1 == VarCmp(&vtA, &vtKey, 0, 0);
 }
 
 #define STBDS_HASH_TO_ARR(x,elemsize) ((char*) (x) - (elemsize))

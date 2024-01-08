@@ -169,6 +169,16 @@ class TestSuite {
         Yunit.Assert(hm.Count == 2, "Set did not set multiple items")
     }
 
+    CreateWithValue() {
+        hm := HashMap(1, 2)
+        Yunit.Assert(hm.Count == 1, "Create did not set an item")
+    }
+
+    CreateWithMultiple() {
+        hm := HashMap(1, 2, 3, 4)
+        Yunit.Assert(hm.Count == 2, "Create did not set enough items")
+    }
+
     End() {
     }
 }

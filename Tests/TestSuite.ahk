@@ -77,6 +77,8 @@ class TestSuite {
 
     GetRejectsWrongParamCount() {
         hm := HashMap()
+        hm.Set(1, 2)
+
         try {
             hm.Get()
             Yunit.Assert(false, "Get did not reject wrong param count!")
@@ -132,6 +134,14 @@ class TestSuite {
         hm.Set('alpha', 'beta')
         result := hm['alpha']
         Yunit.Assert(result == 'beta', 'Did not retrieve same str!')
+    }
+
+    GetUnset() {
+        hm := HashMap()
+        try {
+            hm.Get('alpha')
+            Yunit.Assert(false, 'Get did not error on unset!')
+        }
     }
 
     End() {

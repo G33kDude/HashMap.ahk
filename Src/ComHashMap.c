@@ -175,9 +175,10 @@ HRESULT __stdcall chm_Invoke(
         int index = stbds_hmgeti(this->items, key);
 
         if (index == -1) {
-            pVarResult->vt = VT_BSTR;
-            pVarResult->bstrVal = SysAllocString(L"Not Found");
-            return 1;
+            pExcepInfo->wCode = 1001;
+            pExcepInfo->bstrSource = SysAllocString(L"ComHashMap");
+            pExcepInfo->bstrDescription = SysAllocString(L"Item has no value");
+            return DISP_E_EXCEPTION;
         }
 
         VARIANT val = UnpackVariant(this->items[index].val);

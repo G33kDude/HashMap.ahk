@@ -179,6 +179,25 @@ class TestSuite {
         Yunit.Assert(hm.Count == 2, "Create did not set enough items")
     }
 
+    DeleteKey() {
+        hm := HashMap()
+
+        o := {}
+        countStart := ObjRelease(ObjPtrAddRef(o))
+        hm.Set(o, o)
+        countAfterSet := ObjRelease(ObjPtrAddRef(o))
+        hm.Delete(o)
+        countEnd := ObjRelease(ObjPtrAddRef(o))
+
+        Yunit.assert(countAfterSet > countStart, "Reference count did not increase!")
+        Yunit.assert(countStart == countEnd, "Reference count did not revert!")
+
+        try {
+            hm.Get(o)
+            Yunit.assert(false, "Item not removed!")
+        }
+    }
+
     GetWithDefault() {
         hm := HashMap()
         o := []

@@ -6,6 +6,7 @@
 #define CHM_DISPID_GET 1
 #define CHM_DISPID_SET 2
 #define CHM_DISPID_COUNT 3
+#define CHM_DISPID_DELETE 4
 
 /**
  * Returns the IDispatch interface of the object when requested
@@ -106,6 +107,8 @@ HRESULT __stdcall chm_GetIDsOfNames(
             rgDispId[i] = CHM_DISPID_GET;
         } else if (0 == _wcsicmp(rgszNames[i], L"Count")) {
             rgDispId[i] = CHM_DISPID_COUNT;
+        } else if (0 == _wcsicmp(rgszNames[i], L"Delete")) {
+            rgDispId[i] = CHM_DISPID_DELETE;
         } else {
             retval = DISP_E_UNKNOWNNAME;
             rgDispId[i] = DISPID_UNKNOWN;
@@ -210,6 +213,42 @@ HRESULT __stdcall chm_Invoke(
 
         pVarResult->vt = VT_DISPATCH;
         pVarResult->pdispVal = AS_IDISPATCH(chme);
+        return S_OK;
+    }
+
+    // Delete method
+    if (dispIdMember == CHM_DISPID_DELETE && wFlags & DISPATCH_METHOD) {
+        DebugStr(L"Invoking Delete");
+
+        // Require exactly 1 param
+        if (pDispParams->cArgs != 1) {
+            return DISP_E_BADPARAMCOUNT;
+        }
+
+        int index = stbds_hmgeti(this->items, pDispParams->rgvarg[0]);
+
+        if (index == -1) {
+            pExcepInfo->wCode = 1001;
+            pExcepInfo->bstrSource = SysAllocString(L"ComHashMap");
+            pExcepInfo->bstrDescription = SysAllocString(L"Item has no value");
+            return DISP_E_EXCEPTION;
+        }
+
+        DebugStrPtr(L"Found item for deletion at index", index);
+
+        HashItem item = this->items[index];
+        stbds_hmdel(this->items, pDispParams->rgvarg[0]);
+
+        // Instead of VariantCopy val and then clearing key and val, do a naive
+        // copy of val and only clear key. This avoids extra overhead from
+        // unnecessary calls to AddRef and Release.
+
+        VariantClear(&item.key);
+        pVarResult->vt = item.val.vt;
+        pVarResult->llVal = item.val.llVal;
+
+        DebugStr(L"Deletion should have happened now");
+
         return S_OK;
     }
 

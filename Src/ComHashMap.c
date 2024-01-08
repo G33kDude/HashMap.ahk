@@ -167,24 +167,32 @@ HRESULT __stdcall chm_Invoke(
     ) {
         DebugStr(L"Invoking Get");
 
-        // Require exactly 1 param
-        if (pDispParams->cArgs != 1) {
-            return DISP_E_BADPARAMCOUNT;
+        if (pDispParams->cArgs == 1) { // Get no default
+            int index = stbds_hmgeti(this->items, pDispParams->rgvarg[0]);
+
+            if (index == -1) {
+                pExcepInfo->wCode = 1001;
+                pExcepInfo->bstrSource = SysAllocString(L"ComHashMap");
+                pExcepInfo->bstrDescription = SysAllocString(L"Item has no value");
+                return DISP_E_EXCEPTION;
+            }
+
+            VariantCopy(pVarResult, &this->items[index].val);
+
+            return S_OK;
+        } else if (pDispParams->cArgs == 2) { // Get with default
+            int index = stbds_hmgeti(this->items, pDispParams->rgvarg[1]);
+
+            if (index == -1) {
+                VariantCopy(pVarResult, &pDispParams->rgvarg[0]);
+                return S_OK;
+            }
+
+            VariantCopy(pVarResult, &this->items[index].val);
+            return S_OK;
         }
 
-        int index = stbds_hmgeti(this->items, pDispParams->rgvarg[0]);
-
-        if (index == -1) {
-            pExcepInfo->wCode = 1001;
-            pExcepInfo->bstrSource = SysAllocString(L"ComHashMap");
-            pExcepInfo->bstrDescription = SysAllocString(L"Item has no value");
-            return DISP_E_EXCEPTION;
-        }
-
-        VARIANT val = { .vt = VT_EMPTY };
-        VariantCopy(pVarResult, &this->items[index].val);
-
-        return S_OK;
+        return DISP_E_BADPARAMCOUNT;
     }
 
     // Count property get

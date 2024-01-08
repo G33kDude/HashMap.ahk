@@ -179,6 +179,17 @@ class TestSuite {
         Yunit.Assert(hm.Count == 2, "Create did not set enough items")
     }
 
+    GetWithDefault() {
+        hm := HashMap()
+        o := []
+        countStart := ObjRelease(ObjPtrAddRef(o))
+        result := hm.Get(1, o)
+        Yunit.Assert(result == o, "Get did not get the right default")
+        result := ""
+        countEnd := ObjRelease(ObjPtrAddRef(o))
+        Yunit.Assert(countStart == countEnd, "Get messed up the ref count")
+    }
+
     End() {
     }
 }

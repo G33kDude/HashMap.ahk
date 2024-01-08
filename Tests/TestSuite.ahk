@@ -144,6 +144,25 @@ class TestSuite {
         }
     }
 
+    RefCount() {
+        hm := HashMap()
+
+        o := []
+        countStart := ObjRelease(ObjPtrAddRef(o))
+
+        hm.Set(o, o)
+        countAfterSet := ObjRelease(ObjPtrAddRef(o))
+        Yunit.Assert(countAfterSet > countStart, "Ref count after set not greater than start")
+
+        hm.Get(o)
+        countAfterGet := ObjRelease(ObjPtrAddRef(o))
+        Yunit.Assert(countAfterGet == countAfterSet, "Ref count after get changed!")
+
+        hm := ""
+        countAfterClear := ObjRelease(ObjPtrAddRef(o))
+        Yunit.Assert(countAfterClear == countStart, "Ref count after clear wrong!")
+    }
+
     End() {
     }
 }

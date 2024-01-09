@@ -9,6 +9,7 @@
 #define CHM_DISPID_DELETE 4
 #define CHM_DISPID_CLEAR 5
 #define CHM_DISPID_HAS 6
+#define CHM_DISPID_DEFAULT 7
 
 /**
  * Returns the IDispatch interface of the object when requested
@@ -117,6 +118,8 @@ HRESULT __stdcall chm_GetIDsOfNames(
             rgDispId[i] = CHM_DISPID_HAS;
         } else if (0 == _wcsicmp(rgszNames[i], L"__Item")) {
             rgDispId[i] = DISPID_VALUE;
+        } else if (0 == _wcsicmp(rgszNames[i], L"Default")) {
+            rgDispId[i] = CHM_DISPID_DEFAULT;
         } else {
             retval = DISP_E_UNKNOWNNAME;
             rgDispId[i] = DISPID_UNKNOWN;
@@ -181,7 +184,7 @@ HRESULT __stdcall chm_Invoke(
         if (pDispParams->cArgs == 1) { // Get no default
             int index = stbds_hmgeti(this->items, pDispParams->rgvarg[0]);
 
-            if (index == -1) {
+            if (index == -1 && this->items[index].val.vt == VT_ERROR) {
                 pExcepInfo->wCode = 1001;
                 pExcepInfo->bstrSource = SysAllocString(L"ComHashMap");
                 pExcepInfo->bstrDescription = SysAllocString(L"Item has no value");
@@ -296,6 +299,31 @@ HRESULT __stdcall chm_Invoke(
         return S_OK;
     }
 
+    // Default property put
+    if (dispIdMember == CHM_DISPID_DEFAULT && wFlags & DISPATCH_PROPERTYPUT) {
+        DebugStr(L"Invoking Default Put");
+
+        // Require exactly 1 param
+        if (pDispParams->cArgs != 1) {
+            return DISP_E_BADPARAMCOUNT;
+        }
+
+        // Copy the variant to the default slot, implicitly freeing anything
+        // that was in that slot previously.
+        VariantCopy(&this->items[-1].val, &pDispParams->rgvarg[0]);
+
+        return S_OK;
+    }
+
+    // Default property get
+    if (dispIdMember == CHM_DISPID_DEFAULT && wFlags & DISPATCH_PROPERTYGET) {
+        DebugStr(L"Invoking Default Get");
+
+        VariantCopy(pVarResult, &this->items[-1].val);
+
+        return S_OK;
+    }
+
     DebugStrPtr(L"Unknown DispIdMember: ", dispIdMember);
 
     return DISP_E_MEMBERNOTFOUND;
@@ -318,6 +346,8 @@ ComHashMap* NewComHashMap() {
     m->lpVtbl = &COM_HASH_MAP_VTBL;
     m->refcount = 1;
     m->items = NULL;
+    HashItem def = { .key = { .vt = VT_ERROR }, .val = { .vt = VT_ERROR } };
+    stbds_hmdefaults(m->items, def);
 
     return m;
 }

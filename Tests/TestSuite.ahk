@@ -245,9 +245,27 @@ class TestSuite {
 
     GetWithPresetDefault() {
         hm := HashMap()
-        hm.Default := 2
-        result := hm.Get(1)
-        Yunit.Assert(result == 2, "Get did not get the right default")
+        try {
+            hm.Get(1)
+            Yunit.Assert(false, "Get did not throw")
+        }
+
+        o := []
+        countStart := ObjRelease(ObjPtrAddRef(o))
+
+        hm.Default := o
+        Yunit.Assert(hm.Get(1) == o, "Get did not get the right default")
+
+        Yunit.Assert(hm.Default == o, "Default did not get the right default")
+
+        hm.Default := unset
+        try {
+            hm.Get(1)
+            Yunit.Assert(false, "Get did not throw")
+        }
+
+        countEnd := ObjRelease(ObjPtrAddRef(o))
+        Yunit.Assert(countStart == countEnd, "Default messed up the ref count")
     }
 
     Clone() {

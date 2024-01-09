@@ -165,10 +165,10 @@ Defines the default value returned when a key is not found.
 MapObj.Default := Value
 ```
 
-To clear the default, 
+To clear the default, set it to `unset`.
 
 ```ahk
-MapObj.Default :=
+MapObj.Default := unset
 ```
 
 ### __Item

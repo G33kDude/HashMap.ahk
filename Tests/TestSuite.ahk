@@ -44,6 +44,20 @@ class TestSuite {
         Yunit.Assert(result == o, "Did not retrieve same obj!")
     }
 
+    SetOverwriteRefCount() {
+        o := []
+        hm := HashMap()
+
+        countStart := ObjRelease(ObjPtrAddRef(o))
+        hm.Set(1, o)
+        countSet := ObjRelease(ObjPtrAddRef(o))
+        hm.Set(1, 2)
+        countEnd := ObjRelease(ObjPtrAddRef(o))
+
+        Yunit.Assert(countSet > countStart, "Clone messed up the ref count")
+        Yunit.Assert(countStart == countEnd, "Clone messed up the ref count")
+    }
+
     Count() {
         hm := HashMap()
         hm.Set(1, 2)

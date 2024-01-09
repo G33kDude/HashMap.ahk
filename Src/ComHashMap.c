@@ -162,6 +162,14 @@ HRESULT __stdcall chm_Invoke(
                 .key = { .vt = VT_EMPTY },
                 .val = { .vt = VT_EMPTY },
             };
+
+            // If exists, pull item so it may be freed by VariantCopy
+            int index = stbds_hmgeti(this->items, pDispParams->rgvarg[i+1]);
+            if (index >= 0) {
+                DebugStrPtr(L"Found index to delete", index);
+                item = this->items[index];
+            }
+
             VariantCopy(&item.key, &pDispParams->rgvarg[i+1]);
             VariantCopy(&item.val, &pDispParams->rgvarg[i+0]);
             stbds_hmputs(this->items, item);

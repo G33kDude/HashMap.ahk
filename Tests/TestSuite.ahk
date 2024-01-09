@@ -284,10 +284,15 @@ class TestSuite {
 
     Clone() {
         hm := HashMap()
-        hm.Set(1, 2)
+        o := []
+        countStart := ObjRelease(ObjPtrAddRef(o))
+        hm.Set(1, o)
         clone := hm.Clone()
-        hm.Set(1, 3)
-        Yunit.Assert(clone[1] == 2, "Clone was changed by source")
+        hm.Set(1, 2)
+        Yunit.Assert(clone[1] == o, "Clone was changed by source")
+        clone := ""
+        countEnd := ObjRelease(ObjPtrAddRef(o))
+        Yunit.Assert(countStart == countEnd, "Clone messed up the ref count")
     }
 
     AccessByItemProp() {

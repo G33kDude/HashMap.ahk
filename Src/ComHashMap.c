@@ -10,6 +10,7 @@
 #define CHM_DISPID_CLEAR 5
 #define CHM_DISPID_HAS 6
 #define CHM_DISPID_DEFAULT 7
+#define CHM_DISPID_CLONE 8
 
 /**
  * Returns the IDispatch interface of the object when requested
@@ -120,6 +121,8 @@ HRESULT __stdcall chm_GetIDsOfNames(
             rgDispId[i] = DISPID_VALUE;
         } else if (0 == _wcsicmp(rgszNames[i], L"Default")) {
             rgDispId[i] = CHM_DISPID_DEFAULT;
+        } else if (0 == _wcsicmp(rgszNames[i], L"Clone")) {
+            rgDispId[i] = CHM_DISPID_CLONE;
         } else {
             retval = DISP_E_UNKNOWNNAME;
             rgDispId[i] = DISPID_UNKNOWN;
@@ -329,6 +332,28 @@ HRESULT __stdcall chm_Invoke(
 
         VariantCopy(pVarResult, &this->items[-1].val);
 
+        return S_OK;
+    }
+
+    // Clone method
+    if (dispIdMember == CHM_DISPID_CLONE && wFlags & DISPATCH_METHOD) {
+        DebugStr(L"Invoking Clone");
+
+        ComHashMap* chm = NewComHashMap();
+
+        // TODO: Copy CaseSense
+
+        // Copy the variants (including the default)
+        int len = stbds_hmlen(this->items);
+        for (int i = -1; i < len; i++) {
+            HashItem item = { .key = { .vt = VT_EMPTY }, .val = { .vt = VT_EMPTY } };
+            VariantCopy(&item.key, &this->items[i].key);
+            VariantCopy(&item.val, &this->items[i].val);
+            stbds_hmputs(chm->items, item);
+        }
+
+        pVarResult->vt = VT_DISPATCH;
+        pVarResult->pdispVal = AS_IDISPATCH(chm);
         return S_OK;
     }
 

@@ -33,5 +33,5 @@ class HashMap {
         return lib
     }
 
-    static Call(p*) => ComObjFromPtr(this.lib.NewComHashMap()).Set(p*)
+    static Call(p*) => ComObjFromPtr(this.MCode.NewComHashMap()).Set(p*)
 }

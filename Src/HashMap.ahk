@@ -2,10 +2,14 @@
 #Include Lib\MCL.ahk\MCL.ahk
 
 class HashMap {
-    static __New() {
+    static version := "1.0.0-git-dev"
+
+    static MCode := this._Load()
+
+    static _Load() {
         try {
             SetWorkingDir A_LineFile "\.."
-            this.lib := MCL.FromC(FileRead("HashMap.c"))
+            lib := MCL.FromC(FileRead("HashMap.c"), { flags: '-D AHK_DEBUG_BUILD' })
         } catch (Error as e) {
             g := Gui()
             g.AddEdit("readonly r20 w640 h480", e.message)
@@ -22,9 +26,11 @@ class HashMap {
             FileOpen("CONOUT$", "w", "UTF-8-RAW").Write(text "`n")
         }
 
-        this.lib.DebugStr := CallbackCreate((a) => Print(StrGet(a)), "Cdecl")
-        this.lib.DebugPtr := CallbackCreate((a) => Print(Format("{:08x}", a)), "Cdecl")
-        this.lib.DebugStrPtr := CallbackCreate((a, b) => Print(StrGet(a) " " Format("{:08x}", b)), "Cdecl")
+        lib.DebugStr := CallbackCreate((a) => Print(StrGet(a)), "Cdecl")
+        lib.DebugPtr := CallbackCreate((a) => Print(Format("{:08x}", a)), "Cdecl")
+        lib.DebugStrPtr := CallbackCreate((a, b) => Print(StrGet(a) " " Format("{:08x}", b)), "Cdecl")
+
+        return lib
     }
 
     static Call(p*) => ComObjFromPtr(this.lib.NewComHashMap()).Set(p*)

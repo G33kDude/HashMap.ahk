@@ -19,7 +19,7 @@ MCL_IMPORT(HRESULT, OleAut32, VariantClear, (VARIANT*));
 #define AS_IDISPATCH(p) ((IDispatch*)(void*)p)
 
 // Uncomment to generate debug build
-#define AHK_DEBUG_BUILD
+// #define AHK_DEBUG_BUILD
 
 #ifdef AHK_DEBUG_BUILD
 MCL_EXPORT_GLOBAL(DebugStr, Ptr)
